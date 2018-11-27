@@ -6,11 +6,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+
+import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.Reclamo;
+import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.ReclamoDao;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -18,7 +25,26 @@ import com.google.android.gms.maps.SupportMapFragment;
 public class MapaFragment extends SupportMapFragment implements OnMapReadyCallback {
 
     private GoogleMap miMapa;
+    public interface OnNuevoLugarListener {
+        public void obtenerCoordenadas();
+    }
 
+    public void setListener(NuevoReclamoFragment.OnNuevoLugarListener listener) {
+        this.listener = listener;
+    }
+
+    private Reclamo reclamoActual;
+    private ReclamoDao reclamoDao;
+
+    private EditText reclamoDesc;
+    private EditText mail;
+    private Spinner tipoReclamo;
+    private TextView tvCoord;
+    private Button buscarCoord;
+    private Button btnGuardar;
+    private NuevoReclamoFragment.OnNuevoLugarListener listener;
+
+    private ArrayAdapter<Reclamo.TipoReclamo> tipoReclamoAdapter;
 
     public MapaFragment() {
         // Required empty public constructor
