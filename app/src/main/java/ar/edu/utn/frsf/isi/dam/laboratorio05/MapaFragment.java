@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.Reclamo;
 import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.ReclamoDao;
@@ -28,14 +29,17 @@ import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.ReclamoDao;
 public class MapaFragment extends SupportMapFragment implements OnMapReadyCallback {
 
     private GoogleMap miMapa;
+    private int tipoMapa;
+    private OnMapaListener listener;
 
-    public interface OnNuevoLugarListener {
-        public void obtenerCoordenadas();
+    private boolean FLAG_NUEVO_LUGAR;
+
+
+    public interface OnMapaListener{
+        public void coordenadasSeleccionadas(LatLng c);
     }
 
-    public void setListener(NuevoReclamoFragment.OnNuevoLugarListener listener) {
-        this.listener = listener;
-    }
+
 
     private Reclamo reclamoActual;
     private ReclamoDao reclamoDao;
@@ -46,7 +50,6 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
     private TextView tvCoord;
     private Button buscarCoord;
     private Button btnGuardar;
-    private NuevoReclamoFragment.OnNuevoLugarListener listener;
 
     private ArrayAdapter<Reclamo.TipoReclamo> tipoReclamoAdapter;
 
@@ -54,11 +57,17 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
         // Required empty public constructor
     }
 
+    public void setListener(OnMapaListener listener) {
+        this.listener = listener;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
+
+        FLAG_NUEVO_LUGAR = false;
 
         Integer tipoMapa = 0;
         Bundle argumentos = getArguments();
@@ -74,6 +83,17 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
     public void onMapReady(GoogleMap map) {
         miMapa = map;
         actualizarMapa();
+
+        miMapa.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                listener.coordenadasSeleccionadas(latLng);
+            }
+        });
+
+
+
+
     }
 
     private void actualizarMapa(){
@@ -86,5 +106,6 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
             }
         miMapa.setMyLocationEnabled(true);
     }
+
 
 }
