@@ -15,11 +15,22 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.MyDatabase;
 import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.Reclamo;
 import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.ReclamoDao;
 
@@ -29,10 +40,8 @@ import ar.edu.utn.frsf.isi.dam.laboratorio05.modelo.ReclamoDao;
 public class MapaFragment extends SupportMapFragment implements OnMapReadyCallback {
 
     private GoogleMap miMapa;
-    private int tipoMapa;
+    private int tipoMapa = 0;
     private OnMapaListener listener;
-
-    private boolean FLAG_NUEVO_LUGAR;
 
 
     public interface OnMapaListener{
@@ -43,6 +52,7 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
 
     private Reclamo reclamoActual;
     private ReclamoDao reclamoDao;
+    private List<Reclamo> listaReclamos;
 
     private EditText reclamoDesc;
     private EditText mail;
@@ -67,14 +77,23 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
                              Bundle savedInstanceState) {
         View rootView = super.onCreateView(inflater, container, savedInstanceState);
 
-        FLAG_NUEVO_LUGAR = false;
-
-        Integer tipoMapa = 0;
         Bundle argumentos = getArguments();
+
         if (argumentos != null) {
-            tipoMapa = argumentos.getInt("tipo_mapa", 0);
+            this.tipoMapa = argumentos.getInt("tipo_mapa", 0);
         }
         getMapAsync(this);
+
+        //cargar datos
+
+            Thread t1 = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    listaReclamos = MyDatabase.getInstance(getActivity()).getReclamoDao().getAll();
+                }
+            });
+            t1.start();
+
 
         return rootView;
     }
@@ -84,17 +103,35 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
         miMapa = map;
         actualizarMapa();
 
+
         miMapa.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                listener.coordenadasSeleccionadas(latLng);
+                @Override
+                public void onMapLongClick(LatLng latLng) {
+                    if(MapaFragment.this.tipoMapa==1)
+                    listener.coordenadasSeleccionadas(latLng);
+                }
+            });
+
+        if(this.tipoMapa==2){
+            List<LatLng> c = new ArrayList<LatLng>();
+            LatLngBounds.Builder limites = new LatLngBounds.Builder();
+            for (Reclamo r : listaReclamos){
+                miMapa.addMarker(new MarkerOptions()
+                .position(new LatLng(r.getLatitud(), r.getLongitud()))
+                .title(r.getReclamo())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                c.add(new LatLng(r.getLatitud(), r.getLongitud()));
+                limites.include(new LatLng(r.getLatitud(), r.getLongitud()));
             }
-        });
 
-
+            miMapa.moveCamera(CameraUpdateFactory.newLatLngBounds(limites.build(), 300));
+        }
 
 
     }
+
+
 
     private void actualizarMapa(){
         if ((ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
