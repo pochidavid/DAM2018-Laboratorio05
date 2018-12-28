@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+
 import com.google.android.gms.maps.model.LatLng;
 
 
@@ -85,7 +86,8 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                                 if(fragment==null){
                                     fragment = new MapaFragment();
                                     Bundle b = new Bundle();
-                                    b.putInt("tipo_mapa", 0);
+                                    b.putInt("tipo_mapa", 4);
+                                    fragment.setArguments(b);
                                     ((MapaFragment) fragment).setListener(MainActivity.this);
                                 }
                                 fragmentTransaction = true;

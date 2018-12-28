@@ -16,18 +16,18 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +156,26 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
                     .strokeColor(Color.RED)
                     .fillColor(0x20FF0000)
                     .strokeWidth(3));
+        }
+        if(this.tipoMapa==4){
+            if(listaReclamos.size()!=0) {
+                List<LatLng> c = new ArrayList<LatLng>();
+                LatLngBounds.Builder limites = new LatLngBounds.Builder();
+                for (Reclamo r : listaReclamos) {
+                    miMapa.addMarker(new MarkerOptions()
+                            .position(new LatLng(r.getLatitud(), r.getLongitud()))
+                            .title(r.getReclamo())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                    c.add(new LatLng(r.getLatitud(), r.getLongitud()));
+                    limites.include(new LatLng(r.getLatitud(), r.getLongitud()));
+                }
+                miMapa.moveCamera(CameraUpdateFactory.newLatLngBounds(limites.build(), 300));
+
+                HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder().data(c).build();
+                TileOverlay mOverlay = miMapa.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+
+            }
         }
 
 
