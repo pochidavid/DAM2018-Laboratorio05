@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class ListaReclamosFragment extends Fragment {
     private List<Reclamo> listaReclamos;
     private ListView lvReclamos;
     private ReclamoDao reclamoDao;
+
+
     public ListaReclamosFragment() {
         // Required empty public constructor
     }
@@ -41,10 +44,14 @@ public class ListaReclamosFragment extends Fragment {
         adapter.setOnReclamoListener(eventosAdapterManager);
         lvReclamos.setAdapter(adapter);
 
+
+
         reclamoDao = MyDatabase.getInstance(this.getActivity()).getReclamoDao();
         cargarReclamosAsyn();
         return v;
     }
+
+
 
     ReclamoArrayAdapter.OnReclamoListener eventosAdapterManager = new ReclamoArrayAdapter.OnReclamoListener() {
         @Override
@@ -79,9 +86,11 @@ public class ListaReclamosFragment extends Fragment {
 
         @Override
         public void mostrarMapa(int id) {
-            Fragment f = null;// setear el fragmento del mapa
+            Fragment f = new MapaFragment();// setear el fragmento del mapa
             Bundle args = new Bundle();
             // setear los parametros tipo_mapa y idReclamo en el Bundle args
+            args.putInt("tipo_mapa", 3);
+            args.putLong("idReclamo", id);
             f.setArguments(args);
             getActivity().getSupportFragmentManager()
                     .beginTransaction()

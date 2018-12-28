@@ -3,6 +3,7 @@ package ar.edu.utn.frsf.isi.dam.laboratorio05;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -53,6 +55,7 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
     private Reclamo reclamoActual;
     private ReclamoDao reclamoDao;
     private List<Reclamo> listaReclamos;
+    private Reclamo rSelec;
 
     private EditText reclamoDesc;
     private EditText mail;
@@ -113,19 +116,46 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
             });
 
         if(this.tipoMapa==2){
-            List<LatLng> c = new ArrayList<LatLng>();
-            LatLngBounds.Builder limites = new LatLngBounds.Builder();
-            for (Reclamo r : listaReclamos){
-                miMapa.addMarker(new MarkerOptions()
-                .position(new LatLng(r.getLatitud(), r.getLongitud()))
-                .title(r.getReclamo())
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            if(listaReclamos.size()!=0) {
+                List<LatLng> c = new ArrayList<LatLng>();
+                LatLngBounds.Builder limites = new LatLngBounds.Builder();
+                for (Reclamo r : listaReclamos) {
+                    miMapa.addMarker(new MarkerOptions()
+                            .position(new LatLng(r.getLatitud(), r.getLongitud()))
+                            .title(r.getReclamo())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-                c.add(new LatLng(r.getLatitud(), r.getLongitud()));
-                limites.include(new LatLng(r.getLatitud(), r.getLongitud()));
+                    c.add(new LatLng(r.getLatitud(), r.getLongitud()));
+                    limites.include(new LatLng(r.getLatitud(), r.getLongitud()));
+                }
+                miMapa.moveCamera(CameraUpdateFactory.newLatLngBounds(limites.build(), 300));
+            }
+        }
+        if(this.tipoMapa==3){
+            for(Reclamo r: listaReclamos){
+                if(r.getId()==getArguments().getLong("idReclamo")){
+                    rSelec=r;
+                }
             }
 
-            miMapa.moveCamera(CameraUpdateFactory.newLatLngBounds(limites.build(), 300));
+            List<LatLng> c = new ArrayList<LatLng>();
+
+            miMapa.addMarker(new MarkerOptions()
+            .position(new LatLng(rSelec.getLatitud(), rSelec.getLongitud()))
+            .title(rSelec.getReclamo())
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+            );
+
+            c.add(new LatLng(rSelec.getLatitud(), rSelec.getLongitud()));
+
+            miMapa.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(rSelec.getLatitud(), rSelec.getLongitud()),15));
+
+            miMapa.addCircle(new CircleOptions()
+                    .center(new LatLng(rSelec.getLatitud(),rSelec.getLongitud()))
+                    .radius(500)
+                    .strokeColor(Color.RED)
+                    .fillColor(0x20FF0000)
+                    .strokeWidth(3));
         }
 
 
