@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
@@ -48,6 +49,7 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
 
     public interface OnMapaListener{
         public void coordenadasSeleccionadas(LatLng c);
+        public void devolverTipo(Reclamo.TipoReclamo tipoReclamo);
     }
 
 
@@ -176,6 +178,27 @@ public class MapaFragment extends SupportMapFragment implements OnMapReadyCallba
                 TileOverlay mOverlay = miMapa.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
 
             }
+        }
+        if(this.tipoMapa==5){
+            String tipo = getArguments().getString("tipoReclamo");
+            PolylineOptions po = new PolylineOptions();
+
+                        List<LatLng> c = new ArrayList<LatLng>();
+            LatLngBounds.Builder limites = new LatLngBounds.Builder();
+            for (Reclamo r : listaReclamos) {
+                if(r.getTipo().toString().equals(tipo)) {
+                    miMapa.addMarker(new MarkerOptions()
+                            .position(new LatLng(r.getLatitud(), r.getLongitud()))
+                            .title(r.getReclamo())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                    c.add(new LatLng(r.getLatitud(), r.getLongitud()));
+                    limites.include(new LatLng(r.getLatitud(), r.getLongitud()));
+                }
+            }
+            miMapa.addPolyline(po);
+            miMapa.moveCamera(CameraUpdateFactory.newLatLngBounds(limites.build(), 300));
+
         }
 
 
