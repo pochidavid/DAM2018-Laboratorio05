@@ -16,6 +16,7 @@ public class Reclamo {
     private Double longitud;
     private String reclamo;
     private String email;
+    private String path_foto;
     @TypeConverters(TipoReclamoConverter.class)
     private TipoReclamo tipo;
 
@@ -65,5 +66,13 @@ public class Reclamo {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getPath_foto() {
+        return path_foto;
+    }
+
+    public void setPath_foto(String path_foto) {
+        this.path_foto = path_foto;
     }
 }
