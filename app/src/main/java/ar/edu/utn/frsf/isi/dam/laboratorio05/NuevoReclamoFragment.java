@@ -23,6 +23,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,6 +85,7 @@ public class NuevoReclamoFragment extends Fragment {
     private MediaPlayer mediaPlayer;
     private Boolean grabando = false;
     private Boolean reproduciendo = false;
+    private Boolean edicionActivada;
 
     private ArrayAdapter<Reclamo.TipoReclamo> tipoReclamoAdapter;
     public NuevoReclamoFragment() {
@@ -112,6 +115,7 @@ public class NuevoReclamoFragment extends Fragment {
         tipoReclamoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tipoReclamo.setAdapter(tipoReclamoAdapter);
 
+        btnGuardar.setEnabled(false);
         int idReclamo =0;
         if(getArguments()!=null)  {
             idReclamo = getArguments().getInt("idReclamo",0);
@@ -120,16 +124,33 @@ public class NuevoReclamoFragment extends Fragment {
         cargarReclamo(idReclamo);
 
 
-        boolean edicionActivada = !tvCoord.getText().toString().equals("0;0");
+        edicionActivada = !tvCoord.getText().toString().equals("0;0");
         reclamoDesc.setEnabled(edicionActivada );
         mail.setEnabled(edicionActivada );
         tipoReclamo.setEnabled(edicionActivada);
-        btnGuardar.setEnabled(edicionActivada);
+
 
         buscarCoord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 listener.obtenerCoordenadas();
+
+            }
+        });
+
+        reclamoDesc.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                activarBotonGuardar();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
 
             }
         });
@@ -291,6 +312,7 @@ public class NuevoReclamoFragment extends Fragment {
                         pathFoto = null;
                         btnReproducir.setVisibility(View.GONE);
                         pathAudio = null;
+                        btnGuardar.setEnabled(false);
                         getActivity().getFragmentManager().popBackStack();
                     }
                 });
@@ -310,6 +332,7 @@ public class NuevoReclamoFragment extends Fragment {
         }
         if (requestCode == REQUEST_IMAGE_SAVE && resultCode == RESULT_OK) {
             cargarImagen();
+            activarBotonGuardar();
         }
     }
 
@@ -400,6 +423,7 @@ public class NuevoReclamoFragment extends Fragment {
         mRecorder.stop();
         mRecorder.release();
         mRecorder = null;
+        activarBotonGuardar();
     }
     private void sacarFoto(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -446,4 +470,24 @@ public class NuevoReclamoFragment extends Fragment {
         mediaPlayer.release();
         mediaPlayer = null;
     }
+
+    private void activarBotonGuardar(){
+        Reclamo.TipoReclamo tipo = (Reclamo.TipoReclamo) tipoReclamo.getSelectedItem();
+
+        //Si el reclamo es por calle en mal estado o verdeda
+        if(tipo == Reclamo.TipoReclamo.CALLE_EN_MAL_ESTADO
+                || tipo == Reclamo.TipoReclamo.VEREDAS){
+
+            //Tiene que ingresar foto
+            if(pathFoto != null) btnGuardar.setEnabled(edicionActivada);
+
+            //Sino la descripcion tiene que ser mayor a 8 o tiene que tener audio
+        }else if(reclamoDesc.getText().length()>=8
+                    || pathAudio != null)
+
+                btnGuardar.setEnabled(edicionActivada);
+
+        else btnGuardar.setEnabled(false);
+        }
+
 }
