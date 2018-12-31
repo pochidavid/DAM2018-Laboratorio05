@@ -64,6 +64,27 @@
         android:layout_height="wrap_content"
         android:text="Añadir foto" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_grabar_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Grabar audio" />
+
+        <Button
+            android:id="@+id/btn_reproducir_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="reproducir"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/btnGuardar"
         android:text="Guardar"
